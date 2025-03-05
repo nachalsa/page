@@ -2,9 +2,161 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>My Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 개인 홈페이지</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #444;
+            padding: 10px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        section {
+            background-color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #diary-entries {
+            display: flex;
+            flex-direction: column;
+        }
+        .diary-entry {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .delete-entry {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello, GitHub!</h1>
+    <header>
+        <h1>내 이름</h1>
+        <p>개발자 / 블로거 / 취미생활러</p>
+    </header>
+
+    <nav>
+        <a href="#about">소개</a>
+        <a href="#skills">기술</a>
+        <a href="#diary">일기</a>
+    </nav>
+
+    <section id="about">
+        <h2>About Me</h2>
+        <p>
+            안녕하세요! 저는 [당신의 직업/관심사]에 관심이 많은 사람입니다. 
+            새로운 것을 배우고 성장하는 것을 좋아합니다.
+        </p>
+    </section>
+
+    <section id="skills">
+        <h2>기술 스택</h2>
+        <ul>
+            <li>프로그래밍 언어: Python, JavaScript</li>
+            <li>프레임워크: React, Django</li>
+            <li>도구: Git, VSCode</li>
+        </ul>
+    </section>
+
+    <section id="diary">
+        <h2>일기장</h2>
+        <div id="diary-entries"></div>
+        <button onclick="addDiaryEntry()">새 일기 쓰기</button>
+    </section>
+
+    <script>
+        // 페이지 로드 시 저장된 일기 불러오기
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDiaryEntries();
+        });
+
+        function loadDiaryEntries() {
+            const entries = JSON.parse(localStorage.getItem('diaryEntries') || '[]');
+            const entriesContainer = document.getElementById('diary-entries');
+            entriesContainer.innerHTML = ''; // 기존 항목 초기화
+
+            entries.forEach((entry, index) => {
+                const entryElement = createDiaryEntryElement(entry, index);
+                entriesContainer.appendChild(entryElement);
+            });
+        }
+
+        function addDiaryEntry() {
+            const entry = prompt('오늘의 일기를 입력하세요:');
+            
+            if (entry) {
+                const today = new Date().toLocaleDateString('ko-KR', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+
+                const newEntry = {
+                    date: today,
+                    content: entry
+                };
+
+                // localStorage에서 기존 일기 불러오기
+                const entries = JSON.parse(localStorage.getItem('diaryEntries') || '[]');
+                
+                // 새 일기 추가
+                entries.unshift(newEntry);
+
+                // localStorage에 저장
+                localStorage.setItem('diaryEntries', JSON.stringify(entries));
+
+                // 화면에 새 일기 추가
+                const entriesContainer = document.getElementById('diary-entries');
+                const entryElement = createDiaryEntryElement(newEntry, 0);
+                entriesContainer.insertBefore(entryElement, entriesContainer.firstChild);
+            }
+        }
+
+        function createDiaryEntryElement(entry, index) {
+            const entryElement = document.createElement('div');
+            entryElement.classList.add('diary-entry');
+            entryElement.innerHTML = `
+                <h3>
+                    ${entry.date}
+                    <span class="delete-entry" onclick="deleteDiaryEntry(${index})">🗑️</span>
+                </h3>
+                <p>${entry.content}</p>
+            `;
+            return entryElement;
+        }
+
+        function deleteDiaryEntry(index) {
+            // localStorage에서 일기 삭제
+            const entries = JSON.parse(localStorage.getItem('diaryEntries') || '[]');
+            entries.splice(index, 1);
+            localStorage.setItem('diaryEntries', JSON.stringify(entries));
+
+            // 화면에서 일기 제거
+            loadDiaryEntries();
+        }
+    </script>
 </body>
 </html>
